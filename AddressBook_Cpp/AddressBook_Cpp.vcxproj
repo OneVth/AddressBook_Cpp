@@ -129,12 +129,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\common.h" />
-    <ClInclude Include="include\Contact.h" />
+    <ClInclude Include="include\contact.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\common.cpp" />
-    <ClCompile Include="src\Contact.cpp" />
+    <ClCompile Include="src\contact.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
