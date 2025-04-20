@@ -13,4 +13,9 @@ private:
 public:
 	ContactStore() = default;
 	~ContactStore() = default;
+
+	bool Insert(const Contact& contact);
+
+	// for debugging
+	void Print(void);
 };
