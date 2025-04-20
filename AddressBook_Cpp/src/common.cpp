@@ -3,6 +3,9 @@
 
 bool Validator::IsAllDigit(const std::string& str)
 {
+	if (str.empty())
+		return false;
+
 	for (char c : str)
 	{
 		if (!std::isdigit(static_cast<unsigned char>(c)))
@@ -13,6 +16,9 @@ bool Validator::IsAllDigit(const std::string& str)
 
 bool Validator::IsAllAlpha(const std::string& str)
 {
+	if (str.empty())
+		return false;
+
 	for (char c : str)
 	{
 		if (!std::isalpha(static_cast<unsigned char>(c)))
@@ -23,9 +29,6 @@ bool Validator::IsAllAlpha(const std::string& str)
 
 bool Validator::IsPhoneFormat(const std::string& str)
 {
-	if (str.empty())
-		return false;
-
 	if (str.length() != 13)
 		return false;
 
