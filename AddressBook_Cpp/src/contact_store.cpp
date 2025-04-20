@@ -8,6 +8,12 @@ bool ContactStore::Insert(const Contact& contact)
 
 void ContactStore::Print(void)
 {
+	if (contacts.empty())
+	{
+		std::cout << "No contacts available" << std::endl;
+		return;
+	}
+
 	for (const auto& entry : contacts)
 	{
 		const Contact& contact = entry.second;
