@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 class Contact {
 private:
@@ -9,7 +8,16 @@ private:
 
 	static const int MAX_AGE = 120;
 	static const int MAX_NAME_LENGTH = 32;
-	static const int MAX_PHONE_LENGTH = 14;
 public:
+	Contact(const int age, const std::string& name, const std::string& phone);
 
+	~Contact();
+
+	int GetAge(void) const;
+	const std::string& GetName(void) const;
+	const std::string& GetPhone(void) const;
+
+	bool SetAge(const int newAge);
+	bool SetName(const std::string& newName);
+	bool SetPhone(const std::string& newPhone);
 };
