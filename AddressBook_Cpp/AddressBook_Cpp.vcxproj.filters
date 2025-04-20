@@ -24,6 +24,9 @@
     <ClInclude Include="tests\test.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\contact_store.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Contact.cpp">
@@ -36,6 +39,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tests\test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\contact_store.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
