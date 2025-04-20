@@ -11,7 +11,7 @@ private:
 public:
 	Contact(const int age, const std::string& name, const std::string& phone);
 
-	~Contact();
+	~Contact() = default;
 
 	int GetAge(void) const;
 	const std::string& GetName(void) const;

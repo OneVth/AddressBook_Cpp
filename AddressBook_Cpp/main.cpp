@@ -1,18 +1,13 @@
 #include <iostream>
 #include "common.h"
+#include "contact.h"
 
 int main(void)
 {
-	std::cout << "IsAllAlpha(): " <<
-		(Validator::IsAllAlpha("abc") ? "pass" : "fail") <<
-		std::endl;
+	Contact* c = new Contact(10, "A", "010-0000-1111");
 
-	std::cout << "IsAllDigit(): " <<
-		(Validator::IsAllDigit("123") ? "pass" : "fail") <<
-		std::endl;
-
-	std::cout << "IsPhoneFormat(): " << 
-		(Validator::IsPhoneFormat("010-0000-0000") ? "pass" : "fail") <<
-		std::endl;
+	std::cout << "Age: " << c->GetAge() <<
+		"\nName: " << c->GetName() <<
+		"\nPhone: " << c->GetPhone() << std::endl;
 	return 0;
 }

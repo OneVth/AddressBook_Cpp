@@ -5,8 +5,6 @@
 Contact::Contact(const int age, const std::string& name, const std::string& phone)
 	: age(age), name(name), phone(phone) {}
 
-Contact::~Contact() {}
-
 int Contact::GetAge(void) const
 {
 	return age;
