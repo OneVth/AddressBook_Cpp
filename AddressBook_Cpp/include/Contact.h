@@ -9,6 +9,7 @@ private:
 	static const int MAX_AGE = 120;
 	static const int MAX_NAME_LENGTH = 32;
 public:
+	Contact() = default;
 	Contact(const int age, const std::string& name, const std::string& phone);
 
 	~Contact() = default;
