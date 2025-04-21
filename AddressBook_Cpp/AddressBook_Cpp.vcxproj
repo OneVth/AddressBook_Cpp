@@ -131,6 +131,7 @@
     <ClInclude Include="include\common.h" />
     <ClInclude Include="include\contact.h" />
     <ClInclude Include="include\contact_store.h" />
+    <ClInclude Include="include\file_manager.h" />
     <ClInclude Include="tests\test.h" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +139,7 @@
     <ClCompile Include="src\common.cpp" />
     <ClCompile Include="src\contact.cpp" />
     <ClCompile Include="src\contact_store.cpp" />
+    <ClCompile Include="src\file_manager.cpp" />
     <ClCompile Include="tests\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
