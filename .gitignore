@@ -398,3 +398,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Ignore files in the tests folder that contain 'test' in the filename
+/AddressBook_Cpp/tests/*test*

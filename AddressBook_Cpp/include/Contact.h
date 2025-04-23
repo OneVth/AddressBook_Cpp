@@ -1,5 +1,7 @@
 #pragma once
 
+#include "json.hpp"
+
 class Contact {
 private:
 	int age;
@@ -21,4 +23,8 @@ public:
 	bool SetAge(const int newAge);
 	bool SetName(const std::string& newName);
 	bool SetPhone(const std::string& newPhone);
+
+	// Serialization
+	friend void to_json(nlohmann::json& j, const Contact& c);
+	friend void from_json(const nlohmann::json& j, Contact& c);
 };
