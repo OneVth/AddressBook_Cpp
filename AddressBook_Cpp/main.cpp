@@ -2,23 +2,18 @@
 #include "common.h"
 #include "contact.h"
 #include "contact_store.h"
+#include "json.hpp"
 
 int main(void)
 {
-	Contact* c1 = new Contact(10, "A", "010-0000-1111");
-	Contact c2(20, "B", "010-0000-2222");
+	Contact contact(10, "Alice", "010-0000-1111");
 
-	std::cout << "Age: " << c1->GetAge() <<
-		"\nName: " << c1->GetName() <<
-		"\nPhone: " << c1->GetPhone() << std::endl;
+	nlohmann::json j;
 
-	ContactStore* store = new ContactStore();
-	store->Insert(*c1);
-	store->Insert(c2);
+	j["age"] = contact.GetAge();
+	j["name"] = contact.GetName();
+	j["phone"] = contact.GetPhone();
 
-	store->Print();
-
-	delete c1;
-	delete store;
+	std::cout << "Serialized JSON: " << j.dump(4) << std::endl;
 	return 0;
 }
