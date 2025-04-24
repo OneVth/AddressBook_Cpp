@@ -16,6 +16,8 @@ int main(void)
 	contacts->Insert(Contact(10, "Alice", "010-0000-1111"));
 	contacts->Insert(Contact(20, "Bob", "010-0000-2222"));
 	contacts->Insert(Contact(30, "Charlie", "010-0000-3333"));
+	contacts->Insert(Contact(40, "Denial", "010-0000-4444"));
+	contacts->Insert(Contact(50, "Evan", "010-0000-5555"));
 
 	const wchar_t* filePath = L".\\tests\\test.json";
 	if (!fileManager.SaveToFile(filePath, *contacts))
@@ -27,72 +29,18 @@ int main(void)
 	std::cout << "Contacts saved to file successfully." << std::endl;
 
 	// Deserialize the contact from JSON
-	HANDLE hFile = CreateFile(
-		filePath,
-		GENERIC_READ,
-		0,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL
-	);
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		std::cerr << "Failed to open file" << std::endl;
-		return 1;
-	}
+	ContactStore* detected = new ContactStore();
+	IORESULT result = fileManager.LoadRecordFromFileByPhone(filePath, "010-0000-1111", *detected);
 
-	DWORD dwFileSize = GetFileSize(hFile, NULL);
-	if (dwFileSize == INVALID_FILE_SIZE)
-	{
-		std::cerr << "Failed to get file size" << std::endl;
-		CloseHandle(hFile);
-		return 1;
-	}
+	std::cout << "LoadRecordFromFileByPhone result: " << result << std::endl;
 
-	char* buffer = new char[dwFileSize + 1];
-	DWORD dwReadSize = 0;
-	BOOL bResult = FALSE;
-
-	bResult = ReadFile(hFile, buffer, dwFileSize, &dwReadSize, NULL);
-	if (!bResult || dwReadSize == 0)
-	{
-		std::cerr << "Failed to read from file" << std::endl;
-		delete[] buffer;
-		CloseHandle(hFile);
-		return 1;
-	}
-
-	buffer[dwReadSize] = '\0';
-
-	nlohmann::json j;
-	try {
-		j = nlohmann::json::parse(buffer);
-		std::cout << "Read JSON: " << j.dump(4) << std::endl;
-	}
-	catch (const nlohmann::json::parse_error& e) {
-		std::cerr << "Failed to parse JSON: " << e.what() << std::endl;
-		delete[] buffer;
-		CloseHandle(hFile);
-		return 1;
-	}
-
-	delete[] buffer;
-	CloseHandle(hFile);
-
-	for (const auto& item : j)
-	{
-		Contact contact;
-		from_json(item, contact);
-		contacts->Insert(contact);
-	}
-
-	contacts->forEach([](const Contact& contact) {
+	detected->forEach([](const Contact& contact) {
 			std::cout << "Age: " << contact.GetAge() << std::endl;
 			std::cout << "Name: " << contact.GetName() << std::endl;
 			std::cout << "Phone: " << contact.GetPhone() << std::endl;
 		});
 
 	delete contacts;
+	delete detected;
 	return 0;
 }
