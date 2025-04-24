@@ -3,60 +3,31 @@
 #include "common.h"
 #include "contact.h"
 #include "contact_store.h"
+#include "file_manager.h"
 #include "json.hpp"
 
 int main(void)
 {
+	CreateDirectory(L".\\tests", NULL);
+
+	FileManager fileManager;
+
 	ContactStore* contacts = new ContactStore();
 	contacts->Insert(Contact(10, "Alice", "010-0000-1111"));
 	contacts->Insert(Contact(20, "Bob", "010-0000-2222"));
 	contacts->Insert(Contact(30, "Charlie", "010-0000-3333"));
 
 	const wchar_t* filePath = L".\\tests\\test.json";
-
-	nlohmann::json j;
-
-	contacts->forEach([&j](const Contact& contact) {
-		nlohmann::json contactJson;
-		to_json(contactJson, contact);
-		j.push_back(contactJson);
-	});
-		
-	std::string jsonStr = j.dump(4);
-
-	// Serialize the contact to JSON
-	HANDLE hFile = CreateFile(
-		filePath,
-		GENERIC_WRITE,
-		0,
-		NULL,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL
-	);
-	if (hFile == INVALID_HANDLE_VALUE)
+	if (!fileManager.SaveToFile(filePath, *contacts))
 	{
-		std::cerr << "Failed to create file" << std::endl;
+		std::cerr << "Failed to save contacts to file" << std::endl;
+		delete contacts;
 		return 1;
 	}
-
-	DWORD dwWritten = 0;
-	BOOL bResult = FALSE;
-
-	bResult = WriteFile(hFile, jsonStr.c_str(), (DWORD)jsonStr.size(), &dwWritten, NULL);
-	if (!bResult)
-	{
-		std::cerr << "Failed to write to file" << std::endl;
-		CloseHandle(hFile);
-		return 1;
-	}
-
-	CloseHandle(hFile);
-
-	std::cout << "Contact serialized to JSON and written to file successfully." << std::endl;
+	std::cout << "Contacts saved to file successfully." << std::endl;
 
 	// Deserialize the contact from JSON
-	hFile = CreateFile(
+	HANDLE hFile = CreateFile(
 		filePath,
 		GENERIC_READ,
 		0,
@@ -81,7 +52,7 @@ int main(void)
 
 	char* buffer = new char[dwFileSize + 1];
 	DWORD dwReadSize = 0;
-	bResult = FALSE;
+	BOOL bResult = FALSE;
 
 	bResult = ReadFile(hFile, buffer, dwFileSize, &dwReadSize, NULL);
 	if (!bResult || dwReadSize == 0)
@@ -94,8 +65,9 @@ int main(void)
 
 	buffer[dwReadSize] = '\0';
 
+	nlohmann::json j;
 	try {
-		nlohmann::json j = nlohmann::json::parse(buffer);
+		j = nlohmann::json::parse(buffer);
 		std::cout << "Read JSON: " << j.dump(4) << std::endl;
 	}
 	catch (const nlohmann::json::parse_error& e) {
