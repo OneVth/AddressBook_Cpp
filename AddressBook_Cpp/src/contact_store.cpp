@@ -1,5 +1,10 @@
 #include "contact_store.h"
 
+bool ContactStore::IsEmpty() const
+{
+	return contacts.empty();
+}
+
 bool ContactStore::Insert(const Contact& contact)
 {
 	auto result = contacts.insert({ contact.GetPhone(), contact });
