@@ -16,6 +16,5 @@ public:
 
 	bool Insert(const Contact& contact);
 
-	// for debugging
-	void Print(void);
+	void forEach(const std::function<void(const Contact&)>& callback) const;
 };

@@ -6,20 +6,10 @@ bool ContactStore::Insert(const Contact& contact)
 	return result.second;
 }
 
-void ContactStore::Print(void)
+void ContactStore::forEach(const std::function<void(const Contact&)>& callback) const
 {
-	if (contacts.empty())
+	for (const auto& pair : contacts)
 	{
-		std::cout << "No contacts available" << std::endl;
-		return;
-	}
-
-	for (const auto& entry : contacts)
-	{
-		const Contact& contact = entry.second;
-		std::cout <<
-			"Age: " << contact.GetAge() <<
-			"\nName: " << contact.GetName() <<
-			"\nPhone: " << contact.GetPhone() << std::endl;
+		callback(pair.second);
 	}
 }

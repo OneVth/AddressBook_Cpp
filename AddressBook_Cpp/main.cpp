@@ -7,11 +7,22 @@
 
 int main(void)
 {
+	ContactStore* contacts = new ContactStore();
+	contacts->Insert(Contact(10, "Alice", "010-0000-1111"));
+	contacts->Insert(Contact(20, "Bob", "010-0000-2222"));
+	contacts->Insert(Contact(30, "Charlie", "010-0000-3333"));
+
 	const wchar_t* filePath = L".\\tests\\test.json";
 
-	Contact contact(10, "Alice", "010-0000-1111");
+	nlohmann::json j;
 
-	nlohmann::json j = contact;
+	contacts->forEach([&j](const Contact& contact) {
+		nlohmann::json contactJson;
+		to_json(contactJson, contact);
+		j.push_back(contactJson);
+	});
+		
+	std::string jsonStr = j.dump(4);
 
 	// Serialize the contact to JSON
 	HANDLE hFile = CreateFile(
@@ -28,8 +39,6 @@ int main(void)
 		std::cerr << "Failed to create file" << std::endl;
 		return 1;
 	}
-
-	std::string jsonStr = j.dump();
 
 	DWORD dwWritten = 0;
 	BOOL bResult = FALSE;
@@ -98,5 +107,20 @@ int main(void)
 
 	delete[] buffer;
 	CloseHandle(hFile);
+
+	for (const auto& item : j)
+	{
+		Contact contact;
+		from_json(item, contact);
+		contacts->Insert(contact);
+	}
+
+	contacts->forEach([](const Contact& contact) {
+			std::cout << "Age: " << contact.GetAge() << std::endl;
+			std::cout << "Name: " << contact.GetName() << std::endl;
+			std::cout << "Phone: " << contact.GetPhone() << std::endl;
+		});
+
+	delete contacts;
 	return 0;
 }
