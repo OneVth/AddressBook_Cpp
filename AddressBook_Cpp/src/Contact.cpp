@@ -21,6 +21,11 @@ const std::string& Contact::GetPhone(void) const
 	return phone;
 }
 
+const int Contact::GetSize(void) const
+{
+	return CONTACT_SIZE;
+}
+
 bool Contact::SetAge(const int newAge)
 {
 	if (newAge < 0 || newAge > MAX_AGE)
@@ -43,20 +48,4 @@ bool Contact::SetPhone(const std::string& newPhone)
 		return false;
 	phone = newPhone;
 	return true;
-}
-
-void to_json(nlohmann::json& j, const Contact& c)
-{
-	j = nlohmann::json{
-		{"age", c.age},
-		{"name", c.name},
-		{"phone", c.phone}
-	};
-}
-
-void from_json(const nlohmann::json& j, Contact& c)
-{
-	j.at("age").get_to(c.age);
-	j.at("name").get_to(c.name);
-	j.at("phone").get_to(c.phone);
 }
