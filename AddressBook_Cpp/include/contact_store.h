@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <map>
+#include <functional>
 #include "contact.h"
 
 

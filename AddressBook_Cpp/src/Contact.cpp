@@ -1,7 +1,7 @@
 #include <iostream>
+#include <vector>
 #include "common.h"
 #include "contact.h"
-#include "json.hpp"
 
 Contact::Contact(const int age, const std::string& name, const std::string& phone)
 	: age(age), name(name), phone(phone) {}
@@ -19,6 +19,11 @@ const std::string& Contact::GetName(void) const
 const std::string& Contact::GetPhone(void) const
 {
 	return phone;
+}
+
+const int Contact::GetSize(void) const
+{
+	return CONTACT_SIZE;
 }
 
 bool Contact::SetAge(const int newAge)
@@ -45,18 +50,27 @@ bool Contact::SetPhone(const std::string& newPhone)
 	return true;
 }
 
-void to_json(nlohmann::json& j, const Contact& c)
+const char* Contact::Serialize() const
 {
-	j = nlohmann::json{
-		{"age", c.age},
-		{"name", c.name},
-		{"phone", c.phone}
-	};
+	char* buffer = new char[CONTACT_SIZE];
+	memset(buffer, 0, CONTACT_SIZE);
+
+	memcpy(buffer, &age, sizeof(age));
+	memcpy(buffer + sizeof(age), name.c_str(), name.size());
+	memcpy(buffer + sizeof(age) + MAX_NAME_LENGTH, phone.c_str(), phone.size());
+
+	return buffer;
 }
 
-void from_json(const nlohmann::json& j, Contact& c)
+void Contact::Deserialize(const char* buffer) 
 {
-	j.at("age").get_to(c.age);
-	j.at("name").get_to(c.name);
-	j.at("phone").get_to(c.phone);
+	if (buffer == nullptr) return;
+
+	memcpy(&this->age, buffer, sizeof(this->age));
+
+	name.assign(buffer + sizeof(age), MAX_NAME_LENGTH);
+	name.erase(name.find('\0'), std::string::npos);
+
+	phone.assign(buffer + sizeof(age) + MAX_NAME_LENGTH, MAX_PHONE_LENGTH);
+	phone.erase(phone.find('\0'), std::string::npos);
 }

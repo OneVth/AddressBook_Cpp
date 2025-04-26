@@ -1,3 +1,4 @@
+#include <functional>
 #include "contact_store.h"
 
 bool ContactStore::IsEmpty() const
