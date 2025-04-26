@@ -2,22 +2,11 @@
 #include <Windows.h>
 #include "contact_store.h"
 #include "file_manager.h"
-#include "json.hpp"
 
-BOOL FileManager::SaveToFile(const std::wstring& fileName, ContactStore& store)
+IORESULT FileManager::SaveToFile(const std::wstring& fileName, ContactStore& store)
 {
-	/*if (store.IsEmpty())
-		return FALSE;
-
-	nlohmann::json j;
-
-	store.forEach([&j](const Contact& contact) {
-		nlohmann::json contactJson;
-		to_json(contactJson, contact);
-		j.push_back(contactJson);
-		});
-
-	std::string jsonStr = j.dump(4);
+	if (store.IsEmpty())
+		return IO_FAIL;
 
 	HANDLE hFile = CreateFile(
 		fileName.c_str(),
@@ -29,43 +18,26 @@ BOOL FileManager::SaveToFile(const std::wstring& fileName, ContactStore& store)
 		NULL
 	);
 	if (hFile == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return IO_FAIL;
 	
+	SetFilePointer(hFile, 0, NULL, FILE_END);
 	
-
-	int flag = 0;
-	if (SetFilePointer(hFile, 0, NULL, FILE_END) > 0)
-		flag = 1;
-	
-	DWORD dwWritten = 0;
 	BOOL bResult = FALSE;
-	bResult = WriteFile(
-		hFile, 
-		jsonStr.c_str(), 
-		(DWORD)jsonStr.size(), 
-		&dwWritten, 
-		NULL
-	);
+	store.forEach([&hFile, &bResult](const Contact& contact) {
+		const char* buffer = contact.Serialize();
+
+		DWORD dwWritten = 0;
+
+		bResult = WriteFile(hFile, buffer, (DWORD)contact.GetSize(), &dwWritten, NULL);
+		if (!bResult)
+			return;
+	});
+
+	CloseHandle(hFile);
+
 	if (!bResult)
-	{
-		CloseHandle(hFile);
-		return FALSE;
-	}
-
-	if (flag)
-	{
-		SetFilePointer(hFile, -(LONG)dwWritten - 2, NULL, FILE_END);
-		bResult = WriteFile(
-			hFile,
-			",\n ",
-			3,
-			&dwWritten,
-			NULL
-		);
-	}
-
-	CloseHandle(hFile);*/
-	return TRUE;
+		return IO_FILE_WRITE_ERROR;
+	return IO_SUCCESS;
 }
 
 IORESULT FileManager::LoadRecordFromFileByPhone(

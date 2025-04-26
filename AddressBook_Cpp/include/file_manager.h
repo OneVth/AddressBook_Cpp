@@ -21,7 +21,7 @@ public:
 	FileManager() = default;
 	~FileManager() = default;
 
-	int SaveToFile(const std::wstring& fileName, ContactStore& store);
+	static IORESULT SaveToFile(const std::wstring& fileName, ContactStore& store);
 
 	IORESULT LoadRecordFromFileByPhone(
 		const std::wstring& fileName,

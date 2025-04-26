@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <map>
+#include <functional>
 #include "contact.h"
 
 
@@ -18,5 +19,5 @@ public:
 
 	bool Insert(const Contact& contact);
 
-	//void forEach(const std::function<void(const Contact&)>& callback) const;
+	void forEach(const std::function<void(const Contact&)>& callback) const;
 };
