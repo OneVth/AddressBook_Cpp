@@ -5,8 +5,6 @@
 #include "contact_store.h"
 #include "file_manager.h"
 
-
-
 int main(void)
 {
 	CreateDirectory(L".\\tests", NULL);
@@ -35,14 +33,29 @@ int main(void)
 	delete c3;
 	delete store;
 	
+	ContactStore* searchStore = new ContactStore();
+	FileManager::LoadRecordFromFileByPhone(
+		L".\\tests\\test.dat",
+		"010-0000-1111",
+		*searchStore
+	);
+
+	searchStore->forEach([](const Contact& contact) {
+		std::cout << "Contact:\n" <<
+			"Age: " << contact.GetAge() << "\n"
+			<< "Name: " << contact.GetName() << "\n"
+			<< "Phone: " << contact.GetPhone() << std::endl;
+		}
+	);
 
 	// Deserialize the contact
-	/*char readBuffer[1024] = { 0 };
+	/*ContactStore* loadedStore = new ContactStore();
+	char readBuffer[1024] = { 0 };
 
 	HANDLE hFileRead = CreateFile(
 		L".\\tests\\test.dat",
 		GENERIC_READ,
-		0,
+		FILE_SHARE_READ,
 		NULL,
 		OPEN_EXISTING,
 		FILE_ATTRIBUTE_NORMAL,
@@ -55,7 +68,7 @@ int main(void)
 	}
 
 	DWORD dwRead = 0;
-	bResult = FALSE;
+	BOOL bResult = FALSE;
 
 	bResult = ReadFile(hFileRead, readBuffer, 1024, &dwRead, NULL);
 	if (!bResult || dwRead == 0)
@@ -65,17 +78,33 @@ int main(void)
 		return 1;
 	}
 
+	Contact* deserializedContact = new Contact();
+	int contactSize = deserializedContact->GetSize();
+	if(dwRead % contactSize != 0)
+	{
+		std::cout << "File size is not a multiple of contact size." << std::endl;
+		delete deserializedContact;
+		CloseHandle(hFileRead);
+		return 1;
+	}
+
+	for (int i = 0; i < ((int)dwRead / contactSize); i++)
+	{
+		deserializedContact->Deserialize(readBuffer + i * contactSize);
+		loadedStore->Insert(*deserializedContact);
+	}
 	std::cout << "Contact read from file successfully." << std::endl;
 
 	CloseHandle(hFileRead);
 
-	Contact* deserializedContact = new Contact();
-	deserializedContact->Deserialize(readBuffer);
-	std::cout << "Deserialized Contact:\n" << 
-		"Age: " << deserializedContact->GetAge() << "\n"
-		<< "Name: " << deserializedContact->GetName() << "\n"
-		<< "Phone: " << deserializedContact->GetPhone() << std::endl;
-	delete deserializedContact;*/
-
+	loadedStore->forEach([](const Contact& contact) {
+		std::cout << "Contact:\n" <<
+			"Age: " << contact.GetAge() << "\n"
+			<< "Name: " << contact.GetName() << "\n"
+			<< "Phone: " << contact.GetPhone() << std::endl;
+		});
+	
+	delete deserializedContact;
+	delete loadedStore;*/
 	return 0;
 }

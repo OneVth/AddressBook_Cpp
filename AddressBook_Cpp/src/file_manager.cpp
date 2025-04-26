@@ -48,64 +48,60 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 	// Checking validation of the phone number is necessary
 	// at the UI level.
 
-	//HANDLE hFile = CreateFile(
-	//	fileName.c_str(),
-	//	GENERIC_READ,
-	//	FILE_SHARE_READ,
-	//	NULL,
-	//	OPEN_EXISTING,
-	//	FILE_ATTRIBUTE_NORMAL,
-	//	NULL
-	//);
-	//if (hFile == INVALID_HANDLE_VALUE)
-	//	return IO_FAIL;
+	HANDLE hFile = CreateFile(
+		fileName.c_str(),
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
 
-	//DWORD dwFileSize = GetFileSize(hFile, NULL);
-	//if (dwFileSize == INVALID_FILE_SIZE)
-	//{
-	//	CloseHandle(hFile);
-	//	return IO_FAIL;
-	//}
+	ContactStore* loadedStore = new ContactStore();
 
-	//char* buffer = new char[dwFileSize + 1];
-	//DWORD dwReadSize = 0;
-	//BOOL bResult = FALSE;
+	DWORD dwReadSize = 0;
+	BOOL bResult = TRUE;
 
-	//bResult = ReadFile(hFile, buffer, dwFileSize, &dwReadSize, NULL);
-	//if (!bResult || dwReadSize == 0)
-	//{
-	//	delete[] buffer;
-	//	CloseHandle(hFile);
-	//	return IO_FILE_READ_ERROR;
-	//}
+	char* readBuffer = new char[1024];
+	while (bResult)
+	{
+		memset(readBuffer, 0, 1024);
 
-	//buffer[dwReadSize] = '\0';
+		bResult = ReadFile(hFile, readBuffer, 1024, &dwReadSize, NULL);
+		if (!bResult || dwReadSize == 0)
+		{
+			delete[] readBuffer;
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
 
-	//nlohmann::json j;
-	//try {
-	//	j = nlohmann::json::parse(buffer);
-	//}
-	//catch (const nlohmann::json::parse_error& /*e*/) {
-	//	delete[] buffer;
-	//	CloseHandle(hFile);
-	//	return IO_FAIL;
-	//}
+		Contact* deserializedContact = new Contact();
+		int contactSize = deserializedContact->GetSize();
+		if (dwReadSize % contactSize != 0)
+		{
+			delete deserializedContact;
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
 
-	//for (const auto& item : j)
-	//{
-	//	Contact contact;
-	//	from_json(item, contact);
-
-	//	if (contact.GetPhone() == phone)
-	//	{
-	//		store.Insert(contact);
-	//		delete[] buffer;
-	//		CloseHandle(hFile);
-	//		return IO_SUCCESS;
-	//	}
-	//}
-
-	//delete[] buffer;
-	//CloseHandle(hFile);
+		for (int i = 0; i < ((int)dwReadSize / contactSize); i++)
+		{
+			deserializedContact->Deserialize(readBuffer + i * contactSize);
+			if (deserializedContact->GetPhone() == phone)
+			{
+				store.Insert(*deserializedContact);
+				delete[] readBuffer;
+				delete deserializedContact;
+				CloseHandle(hFile);
+				return IO_SUCCESS;
+			}
+		}
+	}
+		
+	delete[] readBuffer;
+	CloseHandle(hFile);
 	return IO_FILE_NOT_FOUND;
 }
