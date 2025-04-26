@@ -1,5 +1,8 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+
 class Contact {
 private:
 	int age;
@@ -27,5 +30,7 @@ public:
 	bool SetPhone(const std::string& newPhone);
 
 	// Serialization
+	const char* Serialize() const;
+	void Deserialize(const char* buffer);
 	
 };
