@@ -20,10 +20,14 @@ public:
 
 	~Contact() = default;
 
+	static const int GetMaxAge(void);
+	static const int GetMaxNameLength(void);
+	static const int GetMaxPhoneLength(void);
+	static const int GetContactSize(void);	// return size of contact to be used in serialization
+
 	int GetAge(void) const;
 	const std::string& GetName(void) const;
 	const std::string& GetPhone(void) const;
-	const int GetSize(void) const;	// return size of contact to be used in serialization
 
 	bool SetAge(const int newAge);
 	bool SetName(const std::string& newName);
