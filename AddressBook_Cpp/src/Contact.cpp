@@ -6,6 +6,21 @@
 Contact::Contact(const int age, const std::string& name, const std::string& phone)
 	: age(age), name(name), phone(phone) {}
 
+int Contact::GetMaxAge(void)
+{
+	return MAX_AGE;
+}
+
+int Contact::GetMaxNameLength(void)
+{
+	return MAX_NAME_LENGTH;
+}
+
+int Contact::GetMaxPhoneLength(void)
+{
+	return MAX_PHONE_LENGTH;
+}
+
 int Contact::GetAge(void) const
 {
 	return age;

@@ -20,6 +20,10 @@ public:
 
 	~Contact() = default;
 
+	static int GetMaxAge(void);
+	static int GetMaxNameLength(void);
+	static int GetMaxPhoneLength(void);
+
 	int GetAge(void) const;
 	const std::string& GetName(void) const;
 	const std::string& GetPhone(void) const;

@@ -8,7 +8,7 @@
 int main(void)
 {
 	CreateDirectory(L".\\tests", NULL);
-
+	
 	// Serialize a contact
 	ContactStore* store = new ContactStore();
 
