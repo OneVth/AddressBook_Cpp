@@ -28,7 +28,7 @@ IORESULT FileManager::SaveToFile(const std::wstring& fileName, ContactStore& sto
 
 		DWORD dwWritten = 0;
 
-		bResult = WriteFile(hFile, buffer, (DWORD)contact.GetSize(), &dwWritten, NULL);
+		bResult = WriteFile(hFile, buffer, (DWORD)Contact::GetContactSize(), &dwWritten, NULL);
 		if (!bResult)
 			return;
 	});
@@ -79,7 +79,7 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 		}
 
 		Contact* deserializedContact = new Contact();
-		int contactSize = deserializedContact->GetSize();
+		int contactSize = Contact::GetContactSize();
 		if (dwReadSize % contactSize != 0)
 		{
 			delete deserializedContact;
