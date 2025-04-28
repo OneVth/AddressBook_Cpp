@@ -28,5 +28,8 @@ public:
 	static void EditNode();
 	static void Exit();
 
+	typedef void (*MenuFunction)(void);
+	static MenuFunction menuFunctions[UI_FUNC_COUNT];
+
 	static void RunEventLoop();
 };

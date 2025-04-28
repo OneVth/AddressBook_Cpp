@@ -1,6 +1,15 @@
 #include <iostream>
 #include "ui_event_manager.h"
 
+UIEventManager::MenuFunction UIEventManager::menuFunctions[UIEventManager::Option::UI_FUNC_COUNT] = {
+	UIEventManager::Exit,
+	UIEventManager::PrintAll,
+	UIEventManager::InsertNode,
+	UIEventManager::DeleteNode,
+	UIEventManager::SearchNode,
+	UIEventManager::EditNode
+};
+
 void UIEventManager::PrintAll()
 {
 	std::cout << "Print All Contacts" << std::endl;
