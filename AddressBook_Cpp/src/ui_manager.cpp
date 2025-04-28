@@ -102,3 +102,29 @@ bool UIManager::GetUserPhone(std::string& phone)
 
 	return true;
 }
+
+UIEventManager::Option UIManager::PrintMenu(void)
+{
+	int val = -1;
+	while (true)
+	{
+		std::system("cls");
+		std::cout << 
+			"[1] Print All Records " << 
+			"[2] Insert New Record " << 
+			"[3] Delete Record " << 
+			"[4] Search Record " << 
+			"[5] Edit Record " << 
+			"[0] Exit" 
+			<< std::endl;
+		std::cout << "Enter the number: ";
+		std::cin >> val;
+
+		if (val >= UIEventManager::MENU_EXIT && val < UIEventManager::UI_FUNC_COUNT)
+			return static_cast<UIEventManager::Option>(val);
+
+		std::cout << "Invalid input. Please try again." << std::endl;
+		std::cin.clear();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	}
+}

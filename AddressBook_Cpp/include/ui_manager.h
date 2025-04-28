@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include "ui_event_manager.h"
 
 class UIManager
 {
@@ -15,4 +16,6 @@ public:
 	static bool GetUserAge(int& age);
 	static bool GetUserName(std::string& name);
 	static bool GetUserPhone(std::string& phone);
+
+	static UIEventManager::Option PrintMenu(void);
 };
