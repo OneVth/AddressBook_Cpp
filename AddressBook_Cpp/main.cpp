@@ -1,25 +1,24 @@
 #include <iostream>
-#include <Windows.h>
+//#include <Windows.h>
+#include <string>
 #include "common.h"
 #include "contact.h"
 #include "contact_store.h"
 #include "file_manager.h"
 #include "ui_manager.h"
+#include "ui_event_manager.h"
 
 int main(void)
 {
-	CreateDirectory(L".\\tests", NULL);
+	//CreateDirectory(L".\\tests", NULL);
 	
-	std::string name;
-	std::string phone;
-	int age;
-
-	while (UIManager::GetUserInfo(name, age, phone))
+	UIEventManager::Option option = UIManager::PrintMenu();
+	while (option != UIEventManager::Option::MENU_EXIT)
 	{
-		std::cout << "\nage: " << age << std::endl;
-		std::cout << "name: " << name << std::endl;
-		std::cout << "phone: " << phone << std::endl;
-		std::getchar(); // Wait for user input
+		UIEventManager::menuFunctions[option]();
+		std::getchar();
+
+		option = UIManager::PrintMenu();
 	}
 	
 	return 0;
