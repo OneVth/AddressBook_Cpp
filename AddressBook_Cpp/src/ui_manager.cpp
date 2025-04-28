@@ -121,10 +121,14 @@ UIEventManager::Option UIManager::PrintMenu(void)
 		std::cin >> val;
 
 		if (val >= UIEventManager::MENU_EXIT && val < UIEventManager::UI_FUNC_COUNT)
+		{
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			return static_cast<UIEventManager::Option>(val);
+		}
 
 		std::cout << "Invalid input. Please try again." << std::endl;
 		std::cin.clear();
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		std::getchar();
 	}
 }
