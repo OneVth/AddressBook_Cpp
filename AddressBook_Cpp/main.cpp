@@ -1,5 +1,5 @@
 #include <iostream>
-//#include <Windows.h>
+#include <Windows.h>
 #include <string>
 #include "common.h"
 #include "contact.h"
@@ -10,18 +10,17 @@
 
 int main(void)
 {
-	//CreateDirectory(L".\\tests", NULL);
-	
-	UIEventManager::RunEventLoop();
+	CreateDirectory(L".\\tests", NULL);
 
-	/*UIEventManager::Option option = UIManager::PrintMenu();
-	while (option != UIEventManager::Option::MENU_EXIT)
-	{
-		UIEventManager::menuFunctions[option]();
-		std::getchar();
+	ContactStore store;
+	FileManager::LoadFromFile(L"tests\\test.dat", store);
 
-		option = UIManager::PrintMenu();
-	}*/
+	store.forEach([](const Contact& contact) {
+		std::cout <<
+			"Age: " << contact.GetAge() << '\n' <<
+			"Name: " << contact.GetName() << '\n' <<
+			"Phone: " << contact.GetPhone() << std::endl;
+		});
 	
 	return 0;
 }
