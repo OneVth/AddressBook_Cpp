@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ui_event_manager.h"
+#include "ui_manager.h"
 
 UIEventManager::MenuFunction UIEventManager::menuFunctions[UIEventManager::Option::UI_FUNC_COUNT] = {
 	UIEventManager::Exit,
@@ -42,5 +43,14 @@ void UIEventManager::Exit()
 
 void UIEventManager::RunEventLoop()
 {
-	std::cout << "Running Event Loop" << std::endl;
+	Option option = UIManager::PrintMenu();
+	while (option != MENU_EXIT)
+	{
+		menuFunctions[option]();
+		std::cout << "Press any key to continue..." << std::endl;
+		std::getchar();
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+		option = UIManager::PrintMenu();
+	}
 }

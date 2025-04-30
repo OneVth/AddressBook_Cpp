@@ -12,14 +12,16 @@ int main(void)
 {
 	//CreateDirectory(L".\\tests", NULL);
 	
-	UIEventManager::Option option = UIManager::PrintMenu();
+	UIEventManager::RunEventLoop();
+
+	/*UIEventManager::Option option = UIManager::PrintMenu();
 	while (option != UIEventManager::Option::MENU_EXIT)
 	{
 		UIEventManager::menuFunctions[option]();
 		std::getchar();
 
 		option = UIManager::PrintMenu();
-	}
+	}*/
 	
 	return 0;
 }
