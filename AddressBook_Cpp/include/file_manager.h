@@ -16,10 +16,13 @@ enum IORESULT
 class FileManager 
 {
 private:
+	static const std::wstring testFilePath;
 
 public:
 	FileManager() = default;
 	~FileManager() = default;
+
+	static std::wstring GetTestFilePath(void);
 
 	static IORESULT SaveToFile(const std::wstring& fileName, ContactStore& store);
 
