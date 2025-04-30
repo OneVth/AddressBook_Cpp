@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include <iostream>
 #include <string>
 #include "ui_manager.h"
