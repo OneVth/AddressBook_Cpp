@@ -1,5 +1,5 @@
 #include <iostream>
-//#include <Windows.h>
+#include <Windows.h>
 #include <string>
 #include "common.h"
 #include "contact.h"
@@ -10,10 +10,10 @@
 
 int main(void)
 {
-	//CreateDirectory(L".\\tests", NULL);
+	CreateDirectory(L".\\tests", NULL);
 	
 	ContactStore store;
-	FileManager::LoadFromFile(L"tests\\test.dat", store);
+	FileManager::LoadFromFile(FileManager::GetTestFilePath(), store);
 
 	store.forEach([](const Contact& contact) {
 		std::cout <<

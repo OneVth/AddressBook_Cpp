@@ -4,6 +4,13 @@
 #include "contact_store.h"
 #include "file_manager.h"
 
+const std::wstring FileManager::testFilePath = L".\\tests\\test.dat";
+
+std::wstring FileManager::GetTestFilePath(void)
+{
+	return testFilePath;
+}
+
 IORESULT FileManager::SaveToFile(const std::wstring& fileName, ContactStore& store)
 {
 	if (store.IsEmpty())
