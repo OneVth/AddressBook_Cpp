@@ -12,15 +12,7 @@ int main(void)
 {
 	CreateDirectory(L".\\tests", NULL);
 
-	ContactStore store;
-	FileManager::LoadFromFile(FileManager::GetTestFilePath(), store);
-
-	store.forEach([](const Contact& contact) {
-		std::cout <<
-			"Age: " << contact.GetAge() << '\n' <<
-			"Name: " << contact.GetName() << '\n' <<
-			"Phone: " << contact.GetPhone() << std::endl;
-		});
+	UIEventManager::PrintAll(FileManager::GetTestFilePath().c_str());
 	
 	return 0;
 }

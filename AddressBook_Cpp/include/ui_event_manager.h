@@ -1,4 +1,6 @@
 #pragma once
+
+#include <Windows.h>
 #include <queue>
 #include <functional>
 
@@ -21,15 +23,15 @@ public:
 	UIEventManager() = default;
 	~UIEventManager() = default;
 
-	static void PrintAll();
-	static void InsertNode();
-	static void DeleteNode();
-	static void SearchNode();
-	static void EditNode();
-	static void Exit();
+	static void PrintAll(LPCWSTR path);
+	static void InsertNode(LPCWSTR path);
+	static void DeleteNode(LPCWSTR path);
+	static void SearchNode(LPCWSTR path);
+	static void EditNode(LPCWSTR path);
+	static void Exit(LPCWSTR path);
 
-	typedef void (*MenuFunction)(void);
+	typedef void (*MenuFunction)(LPCWSTR);
 	static MenuFunction menuFunctions[UI_FUNC_COUNT];
 
-	static void RunEventLoop();
+	static void RunEventLoop(LPCWSTR path);
 };
