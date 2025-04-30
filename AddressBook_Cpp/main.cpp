@@ -13,7 +13,7 @@ int main(void)
 	CreateDirectory(L".\\tests", NULL);
 
 	ContactStore store;
-	FileManager::LoadFromFile(L"tests\\test.dat", store);
+	FileManager::LoadFromFile(FileManager::GetTestFilePath(), store);
 
 	store.forEach([](const Contact& contact) {
 		std::cout <<
