@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include "contact.h"
 #include "contact_store.h"
 #include "file_manager.h"
 
@@ -37,6 +38,75 @@ IORESULT FileManager::SaveToFile(const std::wstring& fileName, ContactStore& sto
 
 	if (!bResult)
 		return IO_FILE_WRITE_ERROR;
+	return IO_SUCCESS;
+}
+
+IORESULT FileManager::LoadFromFile(const std::wstring& fileName, ContactStore& store)
+{
+	if (!store.IsEmpty())
+		return IO_FAIL;
+
+	HANDLE hFile = CreateFile(
+		fileName.c_str(),
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
+
+	DWORD dwReadSize = 0;
+	BOOL bResult = TRUE;
+
+	char readBuffer[1024] = { 0 };
+	while (bResult)
+	{
+		memset(readBuffer, 0, 1024);
+
+		bResult = ReadFile(hFile, readBuffer, 1024, &dwReadSize, NULL);
+		if (!bResult)
+		{
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		if (dwReadSize == 0)
+		{
+			if (store.IsEmpty() == true)
+			{
+				// File is empty
+				CloseHandle(hFile);
+				return IO_FILE_EMPTY;
+			}
+			else
+			{
+				// The file is not empty, but no more data to read
+				break;
+			}
+		}
+
+		int contactSize = Contact::GetContactSize();
+		if (dwReadSize % contactSize != 0)
+		{
+			// Invalid data size
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		int numberOfRecords = (int)dwReadSize / contactSize;
+		for (int i = 0; i < numberOfRecords; i++)
+		{
+			Contact* deserializedContact = new Contact();
+			deserializedContact->Deserialize(readBuffer + i * contactSize);
+			store.Insert(*deserializedContact);
+			delete deserializedContact;
+		}
+	}
+
+	CloseHandle(hFile);
 	return IO_SUCCESS;
 }
 

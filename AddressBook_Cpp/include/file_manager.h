@@ -23,6 +23,8 @@ public:
 
 	static IORESULT SaveToFile(const std::wstring& fileName, ContactStore& store);
 
+	static IORESULT LoadFromFile(const std::wstring& fileName, ContactStore& store);
+
 	static IORESULT LoadRecordFromFileByPhone(
 		const std::wstring& fileName,
 		const std::string& phone,
