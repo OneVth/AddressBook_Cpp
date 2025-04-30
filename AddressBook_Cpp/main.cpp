@@ -12,7 +12,8 @@ int main(void)
 {
 	CreateDirectory(L".\\tests", NULL);
 
-	UIEventManager::PrintAll(FileManager::GetTestFilePath().c_str());
+	UIEventManager::InsertNode(FileManager::GetTestFilePath().c_str());
 	
+	UIEventManager::PrintAll(FileManager::GetTestFilePath().c_str());
 	return 0;
 }

@@ -5,6 +5,7 @@
 #include "ui_manager.h"
 #include "file_manager.h"
 #include "contact_store.h"
+#include "common.h"
 
 UIEventManager::MenuFunction UIEventManager::menuFunctions[UIEventManager::Option::UI_FUNC_COUNT] = {
 	UIEventManager::Exit,
@@ -32,6 +33,44 @@ void UIEventManager::PrintAll(LPCWSTR path)
 void UIEventManager::InsertNode(LPCWSTR path)
 {
 	std::cout << "Insert New Contact" << std::endl;
+	
+	ContactStore store;
+
+	do
+	{
+		int age = 0;
+		std::string name;
+		std::string phone;
+
+		if (!UIManager::GetUserInfo(name, age, phone))
+		{
+			std::cout << "Invalid input. Please try again." << std::endl;
+			return;
+		}
+
+		ContactStore storeForCheck;
+		if (FileManager::LoadRecordFromFileByPhone(path, phone, storeForCheck) == IO_SUCCESS)
+		{
+			std::cout << "Phone number already exists. Please try again." << std::endl;
+		}
+		else
+		{
+			Contact contact(age, name, phone);
+			store.Insert(contact);
+		}
+
+		char ch = 0;
+		std::cout << "Press any key to continue (or 'q' to exit) : ";
+		std::cin >> ch;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+		if (ch == 'q' || ch == 'Q')
+			break;
+	} while (true);
+
+	if (FileManager::SaveToFile(path, store) == IO_SUCCESS)
+		std::cout << "Data saved successfully." << std::endl;
+	else
+		std::cout << "Failed to save data." << std::endl;
 }
 
 void UIEventManager::DeleteNode(LPCWSTR path)
