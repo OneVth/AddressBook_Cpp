@@ -35,6 +35,11 @@ public:
 		ContactStore& store
 	);
 
+	static IORESULT LoadRecordsFromFileByAge(
+		const std::wstring& fileName,
+		const int& age,
+		ContactStore& store);
+
 	static IORESULT DeleteRecordFromFileByPhone(
 		const std::wstring& fileName,
 		const std::string& phone

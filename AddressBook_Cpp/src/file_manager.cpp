@@ -179,6 +179,68 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 	return IO_FILE_NOT_FOUND;
 }
 
+IORESULT FileManager::LoadRecordsFromFileByAge(
+	const std::wstring& fileName,
+	const int& age,
+	ContactStore& store)
+{
+	// Checking validation of the phone number is necessary
+	// at the UI level.
+
+	HANDLE hFile = CreateFile(
+		fileName.c_str(),
+		GENERIC_READ,
+		FILE_SHARE_READ,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
+
+	bool isSearched = false;
+	ContactStore loadedStore;
+
+	int contactSize = Contact::GetContactSize();
+	DWORD dwReadSize = 0;
+	BOOL bResult = TRUE;
+
+	char readBuffer[READ_BUFFER_SIZE];
+	while (bResult)
+	{
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
+
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwReadSize, NULL);
+		if (!bResult || dwReadSize == 0)
+		{
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		Contact deserializedContact;
+		if (dwReadSize % contactSize != 0)
+		{
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		int numberOfRecords = (int)dwReadSize / contactSize;
+		for (int i = 0; i < numberOfRecords; i++)
+		{
+			deserializedContact.Deserialize(readBuffer + i * contactSize);
+			if (deserializedContact.GetAge() == age)
+			{
+				isSearched = true;
+				store.Insert(deserializedContact);
+			}
+		}
+	}
+
+	CloseHandle(hFile);
+	return isSearched ? IO_SUCCESS : IO_FILE_NOT_FOUND;
+}
+
 IORESULT FileManager::DeleteRecordFromFileByPhone(
 	const std::wstring& fileName,
 	const std::string& phone

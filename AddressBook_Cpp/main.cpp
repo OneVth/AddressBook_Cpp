@@ -19,17 +19,19 @@ int main(void)
 	store.Insert(Contact(20, "Bob", "010-0000-2222"));
 	store.Insert(Contact(30, "Charlie", "010-0000-3333"));
 	store.Insert(Contact(40, "David", "010-0000-4444"));
+	store.Insert(Contact(40, "Dean", "010-4444-4444"));
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
+	store.Insert(Contact(50, "Evan", "010-5555-5555"));
 	FileManager::SaveToFile(path, store);
 	
 	ContactStore loadedStore;
-	FileManager::LoadRecordFromFileByPhone(FileManager::GetTestFilePath(), "010-0000-1111", loadedStore);
+	FileManager::LoadRecordsFromFileByAge(FileManager::GetTestFilePath(), 40, loadedStore);
 
 	loadedStore.forEach([](const Contact& contact) {
 		std::cout <<
 			"Age: " << contact.GetAge() << '\n' <<
 			"Name: " << contact.GetName() << '\n' <<
-			"Phone: " << contact.GetPhone() << std::endl;
+			"Phone: " << contact.GetPhone() << '\n' << std::endl;
 		});
 	
 	return 0;
