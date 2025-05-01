@@ -21,11 +21,11 @@ int main(void)
 	store.Insert(Contact(40, "David", "010-0000-4444"));
 	store.Insert(Contact(40, "Dean", "010-4444-4444"));
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
-	store.Insert(Contact(50, "Evan", "010-5555-5555"));
+	store.Insert(Contact(50, "Eve", "010-5555-5555"));
 	FileManager::SaveToFile(path, store);
 	
 	ContactStore loadedStore;
-	FileManager::LoadRecordsFromFileByAge(FileManager::GetTestFilePath(), 40, loadedStore);
+	FileManager::LoadRecordsFromFileByName(FileManager::GetTestFilePath(), "Eve", loadedStore);
 
 	loadedStore.forEach([](const Contact& contact) {
 		std::cout <<
