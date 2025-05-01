@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <string>
+#include <sstream>
 #include "common.h"
 #include "contact.h"
 #include "contact_store.h"
@@ -24,15 +25,17 @@ int main(void)
 	store.Insert(Contact(50, "Eve", "010-5555-5555"));
 	FileManager::SaveToFile(path, store);
 	
-	ContactStore loadedStore;
-	FileManager::LoadRecordsFromFileByName(FileManager::GetTestFilePath(), "Eve", loadedStore);
+	ContactStore result;
+	IORESULT r = FileManager::SearchRecordsFromFile(FileManager::GetTestFilePath(), "010-0000-1111 or 10", result);
 
-	loadedStore.forEach([](const Contact& contact) {
+	std::cout << r << std::endl;
+
+	result.forEach([](const Contact& contact) {
 		std::cout <<
 			"Age: " << contact.GetAge() << '\n' <<
 			"Name: " << contact.GetName() << '\n' <<
 			"Phone: " << contact.GetPhone() << '\n' << std::endl;
 		});
-	
+
 	return 0;
 }
