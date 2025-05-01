@@ -17,6 +17,7 @@ class FileManager
 {
 private:
 	static const std::wstring testFilePath;
+	static const size_t READ_BUFFER_SIZE;
 
 public:
 	FileManager() = default;
@@ -37,5 +38,23 @@ public:
 	static IORESULT DeleteRecordFromFileByPhone(
 		const std::wstring& fileName,
 		const std::string& phone
+	);
+
+	static IORESULT EditRecordAgeFromFile(
+		const std::wstring& fileName,
+		Contact& contact,
+		const int& newAge
+	);
+
+	static IORESULT EditRecordNameFromFile(
+		const std::wstring& fileName,
+		Contact& contact,
+		const std::string& newName
+	);
+
+	static IORESULT EditRecordPhoneFromFile(
+		const std::wstring& fileName,
+		Contact& contact,
+		const std::string& newPhone
 	);
 };
