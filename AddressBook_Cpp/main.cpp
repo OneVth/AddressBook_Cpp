@@ -9,10 +9,8 @@
 #include "ui_manager.h"
 #include "ui_event_manager.h"
 
-int main(void)
+static IORESULT CreateTestFile()
 {
-	CreateDirectory(L".\\tests", NULL);
-	
 	std::wstring path = FileManager::GetTestFilePath();
 
 	ContactStore store;
@@ -23,19 +21,41 @@ int main(void)
 	store.Insert(Contact(40, "Dean", "010-4444-4444"));
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
 	store.Insert(Contact(50, "Eve", "010-5555-5555"));
-	FileManager::SaveToFile(path, store);
-	
-	ContactStore result;
-	IORESULT r = FileManager::SearchRecordsFromFile(FileManager::GetTestFilePath(), "010-0000-1111 or 10", result);
 
-	std::cout << r << std::endl;
+	HANDLE hFile = CreateFile(
+		path.c_str(),
+		GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
 
-	result.forEach([](const Contact& contact) {
-		std::cout <<
-			"Age: " << contact.GetAge() << '\n' <<
-			"Name: " << contact.GetName() << '\n' <<
-			"Phone: " << contact.GetPhone() << '\n' << std::endl;
+	BOOL bResult = FALSE;
+	store.forEach([&hFile, &bResult](const Contact& contact) {
+		const char* buffer = contact.Serialize();
+
+		DWORD dwWritten = 0;
+
+		bResult = WriteFile(hFile, buffer, (DWORD)Contact::GetContactSize(), &dwWritten, NULL);
+		if (!bResult)
+			return;
 		});
+
+	CloseHandle(hFile);
+	return IO_SUCCESS;
+}
+
+int main(void)
+{
+	CreateDirectory(L".\\tests", NULL);
+	
+	CreateTestFile();
+
+	UIEventManager::SearchNode(FileManager::GetTestFilePath().c_str());
 
 	return 0;
 }
