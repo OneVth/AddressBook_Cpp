@@ -45,4 +45,10 @@ public:
 		Contact& contact,
 		const int& newAge
 	);
+
+	static IORESULT EditRecordNameFromFile(
+		const std::wstring& fileName,
+		Contact& contact,
+		const std::string& newName
+	);
 };

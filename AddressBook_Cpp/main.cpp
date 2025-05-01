@@ -22,8 +22,8 @@ int main(void)
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
 	FileManager::SaveToFile(path, store);
 	
-	Contact contact(10, "Alice", "010-0000-1111");
-	IORESULT result = FileManager::EditRecordAgeFromFile(path, contact, 90);
+	Contact contact(30, "Charlie", "010-0000-3333");
+	IORESULT result = FileManager::EditRecordNameFromFile(path, contact, std::string("Zenon"));
 	std::cout << "EditRecordAgeFromFile: " << result << std::endl;
 
 	/*ContactStore store;
