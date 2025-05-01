@@ -75,7 +75,31 @@ void UIEventManager::InsertNode(LPCWSTR path)
 
 void UIEventManager::DeleteNode(LPCWSTR path)
 {
-	std::cout << "Delete Contact" << std::endl;
+	do
+	{
+		std::system("cls");
+		std::cout << "Delete Record" << std::endl;
+		std::cout << "Need the phone number to delete" << std::endl;
+
+		std::string phone;
+		UIManager::GetUserPhone(phone);
+
+		IORESULT result = FileManager::DeleteRecordFromFileByPhone(path, phone);
+
+		if (result == IO_SUCCESS)
+			std::cout << "Record deleted successfully." << std::endl;
+		else if (result == IO_FILE_NOT_FOUND)
+			std::cout << "No matching record found." << std::endl;
+		else
+			std::cout << "Error occurred while deleting the record." << std::endl;
+
+		char ch = 0;
+		printf("Press any key to continue (or 'q' to exit) : ");
+		std::cin >> ch;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+		if (ch == 'q' || ch == 'Q')
+			break;
+	} while (true);
 }
 
 void UIEventManager::SearchNode(LPCWSTR path)
