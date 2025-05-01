@@ -268,7 +268,7 @@ IORESULT FileManager::DeleteRecordFromFileByPhone(
 					return IO_FILE_WRITE_ERROR;
 				}
 
-				char* targetEnd = phonePos + Contact::GetContactSize();
+				char* targetEnd = targetPos + Contact::GetContactSize();
 				DWORD afterSize = dwRead - beforeSize - Contact::GetContactSize();
 				bResult = WriteFile(hFileTemp, targetEnd, afterSize, &dwWritten, NULL);
 				if (!bResult || afterSize != dwWritten)
