@@ -19,22 +19,20 @@ int main(void)
 	store.Insert(Contact(20, "Bob", "010-0000-2222"));
 	store.Insert(Contact(30, "Charlie", "010-0000-3333"));
 	store.Insert(Contact(40, "David", "010-0000-4444"));
+	store.Insert(Contact(40, "Dean", "010-4444-4444"));
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
+	store.Insert(Contact(50, "Eve", "010-5555-5555"));
 	FileManager::SaveToFile(path, store);
 	
-	Contact contact(30, "Charlie", "010-0000-3333");
-	IORESULT result = FileManager::EditRecordPhoneFromFile(path, contact, std::string("010-0000-9999"));
-	std::cout << "EditRecordPhoneFromFile: " << result << std::endl;
+	ContactStore loadedStore;
+	FileManager::LoadRecordsFromFileByName(FileManager::GetTestFilePath(), "Eve", loadedStore);
 
-	/*ContactStore store;
-	FileManager::LoadFromFile(FileManager::GetTestFilePath(), store);
-
-	store.forEach([](const Contact& contact) {
+	loadedStore.forEach([](const Contact& contact) {
 		std::cout <<
 			"Age: " << contact.GetAge() << '\n' <<
 			"Name: " << contact.GetName() << '\n' <<
-			"Phone: " << contact.GetPhone() << std::endl;
-		});*/
+			"Phone: " << contact.GetPhone() << '\n' << std::endl;
+		});
 	
 	return 0;
 }
