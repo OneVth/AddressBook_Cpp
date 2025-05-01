@@ -22,19 +22,15 @@ int main(void)
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
 	FileManager::SaveToFile(path, store);
 	
-	Contact contact(30, "Charlie", "010-0000-3333");
-	IORESULT result = FileManager::EditRecordPhoneFromFile(path, contact, std::string("010-0000-9999"));
-	std::cout << "EditRecordPhoneFromFile: " << result << std::endl;
+	ContactStore loadedStore;
+	FileManager::LoadRecordFromFileByPhone(FileManager::GetTestFilePath(), "010-0000-1111", loadedStore);
 
-	/*ContactStore store;
-	FileManager::LoadFromFile(FileManager::GetTestFilePath(), store);
-
-	store.forEach([](const Contact& contact) {
+	loadedStore.forEach([](const Contact& contact) {
 		std::cout <<
 			"Age: " << contact.GetAge() << '\n' <<
 			"Name: " << contact.GetName() << '\n' <<
 			"Phone: " << contact.GetPhone() << std::endl;
-		});*/
+		});
 	
 	return 0;
 }

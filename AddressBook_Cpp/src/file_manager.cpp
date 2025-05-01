@@ -138,12 +138,12 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 	if (hFile == INVALID_HANDLE_VALUE)
 		return IO_FAIL;
 
-	ContactStore* loadedStore = new ContactStore();
+	ContactStore loadedStore;
 
 	DWORD dwReadSize = 0;
 	BOOL bResult = TRUE;
 
-	char* readBuffer = new char[READ_BUFFER_SIZE];
+	char readBuffer[READ_BUFFER_SIZE];
 	while (bResult)
 	{
 		memset(readBuffer, 0, READ_BUFFER_SIZE);
@@ -151,35 +151,30 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwReadSize, NULL);
 		if (!bResult || dwReadSize == 0)
 		{
-			delete[] readBuffer;
 			CloseHandle(hFile);
 			return IO_FILE_READ_ERROR;
 		}
 
-		Contact* deserializedContact = new Contact();
+		Contact deserializedContact;
 		int contactSize = Contact::GetContactSize();
 		if (dwReadSize % contactSize != 0)
 		{
-			delete deserializedContact;
 			CloseHandle(hFile);
 			return IO_FILE_READ_ERROR;
 		}
 
 		for (int i = 0; i < ((int)dwReadSize / contactSize); i++)
 		{
-			deserializedContact->Deserialize(readBuffer + i * contactSize);
-			if (deserializedContact->GetPhone() == phone)
+			deserializedContact.Deserialize(readBuffer + i * contactSize);
+			if (deserializedContact.GetPhone() == phone)
 			{
-				store.Insert(*deserializedContact);
-				delete[] readBuffer;
-				delete deserializedContact;
+				store.Insert(deserializedContact);
 				CloseHandle(hFile);
 				return IO_SUCCESS;
 			}
 		}
 	}
 
-	delete[] readBuffer;
 	CloseHandle(hFile);
 	return IO_FILE_NOT_FOUND;
 }
