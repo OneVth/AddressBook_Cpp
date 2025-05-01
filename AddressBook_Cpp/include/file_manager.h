@@ -45,6 +45,12 @@ public:
 		const std::string& name,
 		ContactStore& store);
 
+	static IORESULT SearchRecordsFromFile(
+		const std::wstring& fileName,
+		const std::string& input,
+		ContactStore& result
+	);
+
 	static IORESULT DeleteRecordFromFileByPhone(
 		const std::wstring& fileName,
 		const std::string& phone
