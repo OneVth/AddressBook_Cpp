@@ -52,8 +52,6 @@ int main(void)
 	
 	CreateTestFile();
 
-	Contact contact(30, "Charlie", "010-0000-3333");
-	IORESULT result = FileManager::EditRecordPhoneFromFile(FileManager::GetTestFilePath().c_str(), contact, std::string("010-0000-9999"));
-	std::cout << "EditRecordPhoneFromFile: " << result << std::endl;
+	UIEventManager::EditNode(FileManager::GetTestFilePath().c_str());
 	return 0;
 }

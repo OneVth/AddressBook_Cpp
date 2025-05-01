@@ -109,7 +109,89 @@ void UIEventManager::SearchNode(LPCWSTR path)
 
 void UIEventManager::EditNode(LPCWSTR path)
 {
-	std::cout << "Edit Contact" << std::endl;
+	do
+	{
+		std::system("cls");
+		std::cout << "Edit Record" << std::endl;
+		std::cout << "Need the phone number to edit" << std::endl;
+
+		std::string phone;
+		UIManager::GetUserPhone(phone);
+
+		ContactStore store;
+		if (FileManager::LoadRecordFromFileByPhone(path, phone, store) == IO_SUCCESS)
+		{
+			Contact target;
+			store.forEach([&target](const Contact& contact) {
+				target.SetAge(contact.GetAge());
+				target.SetName(contact.GetName());
+				target.SetPhone(contact.GetPhone());
+
+				std::cout <<
+					"\n[Target Record]\n" <<
+					"Age: " << target.GetAge() << " | " <<
+					"Name: " << target.GetName() << " | " <<
+					"Phone: " << target.GetPhone() << '\n' << std::endl;
+				});
+
+			char input = 0;
+			std::cout <<
+				"Edit: [1] Age [2] Name [3] Phone [0] Exit\n" <<
+				"Choose an option: ";
+			std::cin >> input;
+			std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+
+			int newAge = 0;
+			std::string newName;
+			std::string newPhone;
+
+			int option = input - '0';
+			if (option <= 3 && option >= 0)
+			{
+				IORESULT result = IO_FAIL;
+				switch (option)
+				{
+				case 0:
+					std::cout << "Return to menu" << std::endl;
+					return;
+				case 1:
+					UIManager::GetUserAge(newAge);
+					result = FileManager::EditRecordAgeFromFile(path, target, newAge);
+					break;
+				case 2:
+					UIManager::GetUserName(newName);
+					result = FileManager::EditRecordNameFromFile(path, target, newName);
+					break;
+				case 3:
+					UIManager::GetUserPhone(newPhone);
+					result = FileManager::EditRecordPhoneFromFile(path, target, newPhone);
+					break;
+				default:
+					break;
+				}
+
+				if (result == IO_SUCCESS)
+					std::cout << "Success editing record" << std::endl;
+				else
+					std::cout << "Failed to edit the record" << std::endl;
+			}
+			else
+			{
+				std::cout << "Invalid value. Please enter 0-3" << std::endl;
+			}
+		}
+		else
+		{
+			std::cout << "Cannot find record." << std::endl;
+		}
+		
+		char ch = 0;
+		printf("Press any key to continue (or 'q' to exit) : ");
+		std::cin >> ch;
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
+		if (ch == 'q' || ch == 'Q')
+			break;
+	} while (true);
 }
 
 void UIEventManager::Exit(LPCWSTR path)
