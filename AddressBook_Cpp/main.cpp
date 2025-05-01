@@ -8,10 +8,8 @@
 #include "ui_manager.h"
 #include "ui_event_manager.h"
 
-int main(void)
+static IORESULT CreateTestFile()
 {
-	CreateDirectory(L".\\tests", NULL);
-	
 	std::wstring path = FileManager::GetTestFilePath();
 
 	ContactStore store;
@@ -20,10 +18,40 @@ int main(void)
 	store.Insert(Contact(30, "Charlie", "010-0000-3333"));
 	store.Insert(Contact(40, "David", "010-0000-4444"));
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
-	FileManager::SaveToFile(path, store);
+
+	HANDLE hFile = CreateFile(
+		path.c_str(),
+		GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
+
+	BOOL bResult = FALSE;
+	store.forEach([&hFile, &bResult](const Contact& contact) {
+		const char* buffer = contact.Serialize();
+
+		DWORD dwWritten = 0;
+
+		bResult = WriteFile(hFile, buffer, (DWORD)Contact::GetContactSize(), &dwWritten, NULL);
+		if (!bResult)
+			return;
+		});
+
+	CloseHandle(hFile);
+	return IO_SUCCESS;
+}
+
+int main(void)
+{
+	CreateDirectory(L".\\tests", NULL);
 	
-	IORESULT result = FileManager::DeleteRecordFromFileByPhone(path, "010-0000-5555");
-	std::cout << "DeleteRecordFromFileByPhone: " << result << std::endl;
-	
+	IORESULT result = CreateTestFile();
+
+	UIEventManager::DeleteNode(FileManager::GetTestFilePath().c_str());
 	return 0;
 }
