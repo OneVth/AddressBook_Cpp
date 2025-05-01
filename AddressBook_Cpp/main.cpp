@@ -55,15 +55,7 @@ int main(void)
 	
 	CreateTestFile();
 
-	ContactStore result;
-	FileManager::SearchRecordsFromFile(FileManager::GetTestFilePath(), "010-0000-1111 or 10", result);
-
-	result.forEach([](const Contact& contact) {
-		std::cout <<
-			"Age: " << contact.GetAge() << '\n' <<
-			"Name: " << contact.GetName() << '\n' <<
-			"Phone: " << contact.GetPhone() << '\n' << std::endl;
-		});
+	UIEventManager::SearchNode(FileManager::GetTestFilePath().c_str());
 
 	return 0;
 }

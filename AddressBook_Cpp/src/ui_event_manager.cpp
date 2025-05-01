@@ -1,6 +1,7 @@
 #define NOMINMAX
 #include <iostream>
 #include <Windows.h>
+#include <string>
 #include "ui_event_manager.h"
 #include "ui_manager.h"
 #include "file_manager.h"
@@ -105,6 +106,26 @@ void UIEventManager::DeleteNode(LPCWSTR path)
 void UIEventManager::SearchNode(LPCWSTR path)
 {
 	std::cout << "Search Contact" << std::endl;
+	std::cout << "You can use \"AND\" or \"OR\" to search.\n" << std::endl;
+
+	std::string input;
+	std::cout << "Enter search query: ";
+	std::getline(std::cin, input);
+
+	ContactStore result;
+	if (FileManager::SearchRecordsFromFile(path, input, result) == IO_SUCCESS)
+	{
+		std::cout << "Searched:\n" << std::endl;
+
+		result.forEach([](const Contact contact) {
+			std::cout <<
+				"Age: " << contact.GetAge() << '\n' <<
+				"Name: " << contact.GetName() << '\n' <<
+				"Phone: " << contact.GetPhone() << '\n' << std::endl;
+			});
+	}
+	else
+		std::cout << "Failed to search" << std::endl;
 }
 
 void UIEventManager::EditNode(LPCWSTR path)
