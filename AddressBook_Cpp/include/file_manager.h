@@ -33,4 +33,9 @@ public:
 		const std::string& phone,
 		ContactStore& store
 	);
+
+	static IORESULT DeleteRecordFromFileByPhone(
+		const std::wstring& fileName,
+		const std::string& phone
+	);
 };
