@@ -401,3 +401,6 @@ FodyWeavers.xsd
 
 # Ignore files in the tests folder that contain 'test' in the filename
 /AddressBook_Cpp/tests/*test*
+
+# Ignore files in the data folder
+data/

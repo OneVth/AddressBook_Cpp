@@ -51,11 +51,10 @@ static IORESULT CreateTestFile()
 
 int main(void)
 {
-	CreateDirectory(L".\\tests", NULL);
-	
-	CreateTestFile();
+	//CreateDirectory(L".\\tests", NULL);
+	CreateDirectory(L"..\\data", NULL);
 
-	UIEventManager::SearchNode(FileManager::GetTestFilePath().c_str());
+	UIEventManager::RunEventLoop(L"..\\data\\data.dat");
 
 	return 0;
 }
