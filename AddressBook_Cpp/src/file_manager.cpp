@@ -5,6 +5,7 @@
 #include "file_manager.h"
 
 const std::wstring FileManager::testFilePath = L".\\tests\\test.dat";
+const size_t FileManager::READ_BUFFER_SIZE = 1024;
 
 std::wstring FileManager::GetTestFilePath(void)
 {
@@ -68,12 +69,12 @@ IORESULT FileManager::LoadFromFile(const std::wstring& fileName, ContactStore& s
 	DWORD dwReadSize = 0;
 	BOOL bResult = TRUE;
 
-	char readBuffer[1024] = { 0 };
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFile, readBuffer, 1024, &dwReadSize, NULL);
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwReadSize, NULL);
 		if (!bResult)
 		{
 			CloseHandle(hFile);
@@ -142,12 +143,12 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 	DWORD dwReadSize = 0;
 	BOOL bResult = TRUE;
 
-	char* readBuffer = new char[1024];
+	char* readBuffer = new char[READ_BUFFER_SIZE];
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFile, readBuffer, 1024, &dwReadSize, NULL);
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwReadSize, NULL);
 		if (!bResult || dwReadSize == 0)
 		{
 			delete[] readBuffer;
@@ -229,12 +230,12 @@ IORESULT FileManager::DeleteRecordFromFileByPhone(
 		return IO_FAIL;
 	}
 
-	char readBuffer[1024] = { 0 };
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFileSource, readBuffer, 1024, &dwRead, NULL);
+		bResult = ReadFile(hFileSource, readBuffer, READ_BUFFER_SIZE, &dwRead, NULL);
 		if (bResult && dwRead == 0)
 		{
 			// Reached end of file
@@ -301,5 +302,216 @@ IORESULT FileManager::DeleteRecordFromFileByPhone(
 		return IO_FAIL;
 	if (MoveFile(tempPath.c_str(), fileName.c_str()) != TRUE)
 		return IO_FAIL;
+	return IO_SUCCESS;
+}
+
+IORESULT FileManager::EditRecordAgeFromFile(
+	const std::wstring& fileName,
+	Contact& contact,
+	const int& newAge
+	)
+{
+	// Checking validation of the age and existence of the target record
+	// is necessary at the UI level.
+
+	contact.SetAge(newAge);
+	const char* newRecordBuffer = contact.Serialize();
+
+	DWORD dwRead = 0, dwWritten = 0;
+	DWORD dwRecordSize = (DWORD)Contact::GetContactSize();
+	BOOL bResult = TRUE;
+	HANDLE hFile = CreateFile(
+		fileName.c_str(),
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
+
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
+	while (bResult)
+	{
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
+
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwRead, NULL);
+		if (bResult && dwRead == 0)
+		{
+			// Reached end of file
+			break;
+		}
+		else if (!bResult)
+		{
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		// Check whether the chunk has phone number
+		int numberOfRecords = (int)dwRead / Contact::GetContactSize();
+		for (int i = 0; i < numberOfRecords; i++)
+		{
+			char* phonePos = readBuffer + i * Contact::GetContactSize() + sizeof(int) + Contact::GetMaxNameLength();
+			if (strcmp(phonePos, contact.GetPhone().c_str()) == 0)
+			{
+				// when the record is found,
+				// overwrite new record
+				char* targetPos = phonePos - sizeof(int) - Contact::GetMaxNameLength();
+				SetFilePointer(hFile, (LONG)(targetPos - readBuffer), NULL, FILE_BEGIN);
+
+				bResult = WriteFile(hFile, newRecordBuffer, dwRecordSize, &dwWritten, NULL);
+				if (!bResult || dwRecordSize != dwWritten)
+				{
+					CloseHandle(hFile);
+					return IO_FILE_WRITE_ERROR;
+				}
+				break;
+			}
+		}
+	}
+	CloseHandle(hFile);
+	return IO_SUCCESS;
+}
+
+IORESULT FileManager::EditRecordNameFromFile(
+	const std::wstring& fileName,
+	Contact& contact,
+	const std::string& newName
+)
+{
+	// Checking validation of the name and existence of the target record
+	// is necessary at the UI level.
+
+	contact.SetName(newName);
+	const char* newRecordBuffer = contact.Serialize();
+
+	DWORD dwRead = 0, dwWritten = 0;
+	DWORD dwRecordSize = (DWORD)Contact::GetContactSize();
+	BOOL bResult = TRUE;
+	HANDLE hFile = CreateFile(
+		fileName.c_str(),
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
+
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
+	while (bResult)
+	{
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
+
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwRead, NULL);
+		if (bResult && dwRead == 0)
+		{
+			// Reached end of file
+			break;
+		}
+		else if (!bResult)
+		{
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		// Check whether the chunk has phone number
+		int numberOfRecords = (int)dwRead / Contact::GetContactSize();
+		for (int i = 0; i < numberOfRecords; i++)
+		{
+			char* phonePos = readBuffer + i * Contact::GetContactSize() + sizeof(int) + Contact::GetMaxNameLength();
+			if (strcmp(phonePos, contact.GetPhone().c_str()) == 0)
+			{
+				// when the record is found,
+				// overwrite new record
+				char* targetPos = phonePos - sizeof(int) - Contact::GetMaxNameLength();
+				SetFilePointer(hFile, (LONG)(targetPos - readBuffer), NULL, FILE_BEGIN);
+
+				bResult = WriteFile(hFile, newRecordBuffer, dwRecordSize, &dwWritten, NULL);
+				if (!bResult || dwRecordSize != dwWritten)
+				{
+					CloseHandle(hFile);
+					return IO_FILE_WRITE_ERROR;
+				}
+				break;
+			}
+		}
+	}
+	CloseHandle(hFile);
+	return IO_SUCCESS;
+}
+
+IORESULT FileManager::EditRecordPhoneFromFile(
+	const std::wstring& fileName,
+	Contact& contact,
+	const std::string& newPhone
+)
+{
+	// Checking validation of the phone number and existence of the target record
+	// is necessary at the UI level.
+
+	DWORD dwRead = 0, dwWritten = 0;
+	DWORD dwRecordSize = (DWORD)Contact::GetContactSize();
+	BOOL bResult = TRUE;
+	HANDLE hFile = CreateFile(
+		fileName.c_str(),
+		GENERIC_READ | GENERIC_WRITE,
+		0,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+	);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return IO_FAIL;
+
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
+	while (bResult)
+	{
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
+
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwRead, NULL);
+		if (bResult && dwRead == 0)
+		{
+			// Reached end of file
+			break;
+		}
+		else if (!bResult)
+		{
+			CloseHandle(hFile);
+			return IO_FILE_READ_ERROR;
+		}
+
+		// Check whether the chunk has phone number
+		int numberOfRecords = (int)dwRead / Contact::GetContactSize();
+		for (int i = 0; i < numberOfRecords; i++)
+		{
+			char* phonePos = readBuffer + i * Contact::GetContactSize() + sizeof(int) + Contact::GetMaxNameLength();
+			if (strcmp(phonePos, contact.GetPhone().c_str()) == 0)
+			{
+				// when the record is found,
+				// overwrite new record
+
+				contact.SetPhone(newPhone);
+				const char* newRecordBuffer = contact.Serialize();
+
+				char* targetPos = phonePos - sizeof(int) - Contact::GetMaxNameLength();
+				SetFilePointer(hFile, (LONG)(targetPos - readBuffer), NULL, FILE_BEGIN);
+
+				bResult = WriteFile(hFile, newRecordBuffer, dwRecordSize, &dwWritten, NULL);
+				if (!bResult || dwRecordSize != dwWritten)
+				{
+					CloseHandle(hFile);
+					return IO_FILE_WRITE_ERROR;
+				}
+				break;
+			}
+		}
+	}
+	CloseHandle(hFile);
 	return IO_SUCCESS;
 }
