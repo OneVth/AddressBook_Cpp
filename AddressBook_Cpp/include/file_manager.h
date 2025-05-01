@@ -38,4 +38,10 @@ public:
 		const std::wstring& fileName,
 		const std::string& phone
 	);
+
+	static IORESULT EditRecordAgeFromFile(
+		const std::wstring& fileName,
+		Contact& contact,
+		const int& newAge
+	);
 };
