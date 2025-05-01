@@ -17,6 +17,7 @@ class FileManager
 {
 private:
 	static const std::wstring testFilePath;
+	static const size_t READ_BUFFER_SIZE;
 
 public:
 	FileManager() = default;

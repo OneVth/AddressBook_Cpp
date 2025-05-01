@@ -5,6 +5,7 @@
 #include "file_manager.h"
 
 const std::wstring FileManager::testFilePath = L".\\tests\\test.dat";
+const size_t FileManager::READ_BUFFER_SIZE = 1024;
 
 std::wstring FileManager::GetTestFilePath(void)
 {
@@ -68,12 +69,12 @@ IORESULT FileManager::LoadFromFile(const std::wstring& fileName, ContactStore& s
 	DWORD dwReadSize = 0;
 	BOOL bResult = TRUE;
 
-	char readBuffer[1024] = { 0 };
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFile, readBuffer, 1024, &dwReadSize, NULL);
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwReadSize, NULL);
 		if (!bResult)
 		{
 			CloseHandle(hFile);
@@ -142,12 +143,12 @@ IORESULT FileManager::LoadRecordFromFileByPhone(
 	DWORD dwReadSize = 0;
 	BOOL bResult = TRUE;
 
-	char* readBuffer = new char[1024];
+	char* readBuffer = new char[READ_BUFFER_SIZE];
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFile, readBuffer, 1024, &dwReadSize, NULL);
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwReadSize, NULL);
 		if (!bResult || dwReadSize == 0)
 		{
 			delete[] readBuffer;
@@ -229,12 +230,12 @@ IORESULT FileManager::DeleteRecordFromFileByPhone(
 		return IO_FAIL;
 	}
 
-	char readBuffer[1024] = { 0 };
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFileSource, readBuffer, 1024, &dwRead, NULL);
+		bResult = ReadFile(hFileSource, readBuffer, READ_BUFFER_SIZE, &dwRead, NULL);
 		if (bResult && dwRead == 0)
 		{
 			// Reached end of file
@@ -331,12 +332,12 @@ IORESULT FileManager::EditRecordAgeFromFile(
 	if (hFile == INVALID_HANDLE_VALUE)
 		return IO_FAIL;
 
-	char readBuffer[1024] = { 0 };
+	char readBuffer[READ_BUFFER_SIZE] = { 0 };
 	while (bResult)
 	{
-		memset(readBuffer, 0, 1024);
+		memset(readBuffer, 0, READ_BUFFER_SIZE);
 
-		bResult = ReadFile(hFile, readBuffer, 1024, &dwRead, NULL);
+		bResult = ReadFile(hFile, readBuffer, READ_BUFFER_SIZE, &dwRead, NULL);
 		if (bResult && dwRead == 0)
 		{
 			// Reached end of file
