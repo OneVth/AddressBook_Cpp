@@ -1,6 +1,7 @@
 #include <iostream>
 #include <Windows.h>
 #include <string>
+#include <sstream>
 #include "common.h"
 #include "contact.h"
 #include "contact_store.h"
@@ -19,6 +20,7 @@ static IORESULT CreateTestFile()
 	store.Insert(Contact(40, "David", "010-0000-4444"));
 	store.Insert(Contact(40, "Dean", "010-4444-4444"));
 	store.Insert(Contact(50, "Eve", "010-0000-5555"));
+	store.Insert(Contact(50, "Eve", "010-5555-5555"));
 
 	HANDLE hFile = CreateFile(
 		path.c_str(),
@@ -53,6 +55,15 @@ int main(void)
 	
 	CreateTestFile();
 
-	UIEventManager::EditNode(FileManager::GetTestFilePath().c_str());
+	ContactStore result;
+	FileManager::SearchRecordsFromFile(FileManager::GetTestFilePath(), "010-0000-1111 or 10", result);
+
+	result.forEach([](const Contact& contact) {
+		std::cout <<
+			"Age: " << contact.GetAge() << '\n' <<
+			"Name: " << contact.GetName() << '\n' <<
+			"Phone: " << contact.GetPhone() << '\n' << std::endl;
+		});
+
 	return 0;
 }

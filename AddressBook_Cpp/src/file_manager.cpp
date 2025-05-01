@@ -1,8 +1,11 @@
 #include <iostream>
 #include <Windows.h>
+#include <sstream>
+#include <stdexcept>
 #include "contact.h"
 #include "contact_store.h"
 #include "file_manager.h"
+#include "common.h"
 
 const std::wstring FileManager::testFilePath = L".\\tests\\test.dat";
 const size_t FileManager::READ_BUFFER_SIZE = 1024;
@@ -301,6 +304,205 @@ IORESULT FileManager::LoadRecordsFromFileByName(
 
 	CloseHandle(hFile);
 	return isSearched ? IO_SUCCESS : IO_FILE_NOT_FOUND;
+}
+
+static bool SplitSearchExpression(
+	const std::string& input, 
+	std::string& token1, 
+	std::string& op, 
+	std::string& token2)
+{
+	if (input.empty())
+		return false;
+
+	std::istringstream stream(input);
+	std::string temp;
+
+	if (!(stream >> temp))
+		return false;
+	token1 = temp;
+
+	if (stream >> temp)
+	{
+		op = temp;
+
+		if (!(stream >> temp))
+			return false;
+		token2 = temp;
+	}
+	else
+	{
+		op.clear();
+		token2.clear();
+	}
+
+	return true;
+}
+
+static bool ClassifyToken(
+	const std::string& token, 
+	int& age, std::string& name, 
+	std::string& phone)
+{
+	if (token.empty())
+		return false;
+
+	if (Validator::IsAllDigit(token))
+	{
+		try
+		{
+			age = std::stoi(token);
+			if (age < 0 || age > Contact::GetMaxAge())
+				return false;
+		}
+		catch (const std::invalid_argument&)
+		{
+			return false;
+		}
+	}
+	else if (Validator::IsAllAlpha(token))
+	{
+		name = token;
+		if (name.size() > Contact::GetMaxNameLength())
+			return false;
+	}
+	else if (Validator::IsPhoneFormat(token))
+	{
+		phone = token;
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+static bool CombineContactStoreByOp(ContactStore& result, ContactStore& left, ContactStore& right, std::string op)
+{
+	if (op == "OR" || op == "or")
+	{
+		left.forEach([&result](const Contact& contact) {
+			result.Insert(contact);
+			});
+		right.forEach([&result](const Contact& contact) {
+			result.Insert(contact);
+			});
+	}
+	else if (op == "AND" || op == "and")
+	{
+		left.forEach([&result, &right](const Contact& contact1) {
+			right.forEach([&result, contact1](const Contact& contact2) {
+				if (contact1.GetPhone() == contact2.GetPhone())
+					result.Insert(contact1);
+				});
+			});
+	}
+	else
+		false;
+
+	return true;
+}
+
+IORESULT FileManager::SearchRecordsFromFile(
+	const std::wstring& fileName,
+	const std::string& input,
+	ContactStore& result
+)
+{
+	int age1(-1);
+	int age2(-1);
+	std::string name1, name2;
+	std::string phone1, phone2;
+
+	std::string token1, op, token2;
+
+	if (!SplitSearchExpression(input, token1, op, token2))
+		return IO_FAIL;
+
+	if (!ClassifyToken(token1, age1, name1, phone1))
+		return IO_FAIL;
+
+	if (!op.empty())
+	{
+		if (op != "AND" && op != "and" && op != "OR" && op != "or")
+		{
+			return IO_FAIL;
+		}
+
+		if (!ClassifyToken(token2, age2, name2, phone2))
+			return IO_FAIL;
+	}
+
+	if (op.empty())
+	{
+		if (age1 != -1)
+		{
+			FileManager::LoadRecordsFromFileByAge(fileName, age1, result);
+		}
+		else if (!name1.empty())
+		{
+			FileManager::LoadRecordsFromFileByName(fileName, name1, result);
+		}
+		else if (!phone1.empty())
+		{
+			FileManager::LoadRecordFromFileByPhone(fileName, phone1, result);
+		}
+	}
+	else // op is "AND" or "OR"
+	{
+		ContactStore left;
+		ContactStore right;
+
+		if (age1 != -1 && age2 != -1)
+		{
+			FileManager::LoadRecordsFromFileByAge(fileName, age1, left);
+			FileManager::LoadRecordsFromFileByAge(fileName, age2, right);
+		}
+		else if (age1 != -1 && !name2.empty())
+		{
+			FileManager::LoadRecordsFromFileByAge(fileName, age1, left);
+			FileManager::LoadRecordsFromFileByName(fileName, name2, right);
+		}
+		else if (age1 != -1 && !phone2.empty())
+		{
+			FileManager::LoadRecordsFromFileByAge(fileName, age1, left);
+			FileManager::LoadRecordFromFileByPhone(fileName, phone2, right);
+		}
+		else if (!name1.empty() && age2 != -1)
+		{
+			FileManager::LoadRecordsFromFileByName(fileName, name1, left);
+			FileManager::LoadRecordsFromFileByAge(fileName, age2, right);
+		}
+		else if (!name1.empty() && !name2.empty())
+		{
+			FileManager::LoadRecordsFromFileByName(fileName, name1, left);
+			FileManager::LoadRecordsFromFileByName(fileName, name2, right);
+		}
+		else if (!name1.empty() && !phone2.empty())
+		{
+			FileManager::LoadRecordsFromFileByName(fileName, name1, left);
+			FileManager::LoadRecordFromFileByPhone(fileName, phone2, right);
+		}
+		else if (!phone1.empty() && age2 != -1)
+		{
+			FileManager::LoadRecordFromFileByPhone(fileName, phone1, left);
+			FileManager::LoadRecordsFromFileByAge(fileName, age2, right);
+		}
+		else if (!phone1.empty() && !name2.empty())
+		{
+			FileManager::LoadRecordFromFileByPhone(fileName, phone1, left);
+			FileManager::LoadRecordsFromFileByName(fileName, name2, right);
+		}
+		else if (phone1[0] != 0 && phone2[0] != 0)
+		{
+			FileManager::LoadRecordFromFileByPhone(fileName, phone1, left);
+			FileManager::LoadRecordFromFileByPhone(fileName, phone2, right);
+		}
+		CombineContactStoreByOp(result, left, right, op);
+	}
+
+	return !result.IsEmpty() ? IO_SUCCESS : IO_FILE_NOT_FOUND;
 }
 
 IORESULT FileManager::DeleteRecordFromFileByPhone(
