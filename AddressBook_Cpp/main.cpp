@@ -23,8 +23,8 @@ int main(void)
 	FileManager::SaveToFile(path, store);
 	
 	Contact contact(30, "Charlie", "010-0000-3333");
-	IORESULT result = FileManager::EditRecordNameFromFile(path, contact, std::string("Zenon"));
-	std::cout << "EditRecordAgeFromFile: " << result << std::endl;
+	IORESULT result = FileManager::EditRecordPhoneFromFile(path, contact, std::string("010-0000-9999"));
+	std::cout << "EditRecordPhoneFromFile: " << result << std::endl;
 
 	/*ContactStore store;
 	FileManager::LoadFromFile(FileManager::GetTestFilePath(), store);

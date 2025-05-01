@@ -51,4 +51,10 @@ public:
 		Contact& contact,
 		const std::string& newName
 	);
+
+	static IORESULT EditRecordPhoneFromFile(
+		const std::wstring& fileName,
+		Contact& contact,
+		const std::string& newPhone
+	);
 };
